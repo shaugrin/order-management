@@ -1,0 +1,32 @@
+package com.example.order_service.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.time.Instant;
+
+@Data
+@Entity
+@Table(name = "orders")
+public class Order {
+    @Id
+    private String id;
+
+    @Column(nullable = false)
+    private String sku;
+
+    @Column(nullable = false)
+    private Integer quantity;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status = OrderStatus.CREATED;
+
+    @Column(updatable = false)
+    private Instant orderDate = Instant.now();
+
+    @Column(nullable = false)  // Added
+    private String customerEmail;
+
+    @Column(nullable = false)  // Added
+    private String customerPhone;
+}
