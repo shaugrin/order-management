@@ -1,0 +1,68 @@
+package com.example.order_service.service;
+
+import com.example.common.NotiRequest;
+import com.example.order_service.client.InventoryServiceClient;
+import com.example.order_service.client.ProductServiceClient;
+import com.example.order_service.dto.ReserveStockRequest;
+import com.example.order_service.model.Order;
+import com.example.order_service.repository.OrderRepository;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+
+import java.util.concurrent.CompletableFuture;
+
+import static org.mockito.Mockito.*;
+
+public class OrderServiceTest {
+    @Mock
+    private OrderRepository orderRepository;
+
+    @Mock
+    private ProductServiceClient productServiceClient;
+
+    @Mock
+    private InventoryServiceClient inventoryServiceClient;
+
+    @Mock
+    private KafkaTemplate<String, NotiRequest> kafkaTemplate;
+
+    @InjectMocks
+    private OrderService orderService;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testCreateOrder() throws Exception {
+        // ✅ Fixing repository save method
+        when(orderRepository.save(any(Order.class))).thenReturn(new Order());
+
+        // ✅ Fixing other mocks
+        when(productServiceClient.productExistsBySku(anyString())).thenReturn(true);
+        when(inventoryServiceClient.reserveStock(any(ReserveStockRequest.class))).thenReturn(true);
+
+        // ✅ Fixing Kafka mocking (Using CompletableFuture instead of ListenableFuture)
+        CompletableFuture<SendResult<String, NotiRequest>> future = CompletableFuture.completedFuture(
+                new SendResult<>(new ProducerRecord<>("topic", "key", new NotiRequest("sku", 0, "customerEmail", "customerPhone")), null)
+        );
+        when(kafkaTemplate.send(anyString(), any(NotiRequest.class))).thenReturn(future);
+
+        // ✅ Running the test
+        Order result = orderService.createOrder(new NotiRequest("sku", 0, "customerEmail", "customerPhone"));
+
+        // ✅ Verifying stock release
+        verify(inventoryServiceClient).releaseStock(anyString(), anyInt());
+
+        // ✅ Ensuring order creation is successful
+        Assert.assertNotNull(result);
+    }
+}

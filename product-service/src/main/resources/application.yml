@@ -1,0 +1,29 @@
+spring:
+    application:
+        name: product-service
+    data:
+        mongodb:
+          uri: mongodb://localhost:27017
+          database: product_db
+          auto-index-creation: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, metrics
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0

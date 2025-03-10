@@ -1,0 +1,45 @@
+package com.example.notification.service;
+
+import com.example.common.NotiRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+@Service
+public class NotificationConsumer {
+    private static final Logger logger = LogManager.getLogger(NotificationConsumer.class);
+
+    private final EmailService emailService;
+    private final SmsService smsService;
+
+    public NotificationConsumer(EmailService emailService, SmsService smsService) {
+        this.emailService = emailService;
+        this.smsService = smsService;
+    }
+
+    @KafkaListener(topics = "order-events", groupId = "notification-group")
+    public void handleOrderEvent(NotiRequest event) {
+        logger.info("Received OrderEvent: Order ID={}, Status={}", event.sku(), event.getStatus());
+
+        try {
+            // Send email
+            emailService.sendEmail(
+                    event.,
+                    "Order Status Update",
+                    "Your order " + event.getOrderId() + " is now " + event.getStatus()
+            );
+            logger.info("Email sent to {}", event.customerEmail());
+
+            // Send SMS
+            smsService.sendSms(
+                    event.getCustomerPhone(),
+                    "Order " + event.getOrderId() + " status: " + event.getStatus()
+            );
+            logger.info("SMS sent to {}", event.getCustomerPhone());
+
+        } catch (Exception e) {
+            logger.error("Error handling OrderEvent", e);
+        }
+    }
+}
