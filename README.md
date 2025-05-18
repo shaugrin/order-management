@@ -8,11 +8,12 @@ This architecture implements a modern microservices-based e-commerce system with
 * Order Service: Processes customer orders
 * Notification Service: Handles customer notifications
 * Kafka: Event streaming platform for asynchronous communication
+* Eureka Server: Service registry and discovery for microservices
 
 ## Technology Stack
 
 * Spring Boot: Framework for building microservices
-* Spring Cloud: Provides tools for building distributed systems
+* Spring Cloud: Provides tools for building distributed systems, including service discovery with Eureka
 * Keycloak: Open source identity and access management
 * Kafka: Event streaming platform for asynchronous communication
 * Docker & Docker Compose: Containerization and orchestration
