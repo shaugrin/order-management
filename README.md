@@ -97,7 +97,7 @@ cd Product_Store_Application
 - http://localhost:8093/swagger-ui/index.html
 
 ## Microservice Architecture
-![Basic Architecture](images/basic_arch.jpg)
+![Basic Architecture](basic_arch.jpg)
 
 ## Running Docker Compose
 ```bash
